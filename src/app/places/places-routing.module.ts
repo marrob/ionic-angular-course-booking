@@ -1,24 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { pathToFileURL } from 'url';
 import { PlacesPage } from './places.page';
 
-/*
-const routes: Routes = [
-  {
-    path: '',
-    component: PlacesPage
-  },
-  {
-    path: 'discover',
-    loadChildren: () => import('./discover/discover.module').then( m => m.DiscoverPageModule)
-  },
-  {
-    path: 'offers',
-    loadChildren: () => import('./offers/offers.module').then( m => m.OffersPageModule)
-  }
-];
-*/
 
 const routes: Routes = [
   {
@@ -34,7 +17,7 @@ const routes: Routes = [
             },
             {
               path: ':placeId',
-              loadChildren: () => import('./discover/discover.module').then( m => m.DiscoverPageModule)
+              loadChildren: () => import('./discover/place-detail/place-detail.module').then( m => m.PlaceDetailPageModule)
             },
           ]
         },

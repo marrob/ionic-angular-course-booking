@@ -18,7 +18,11 @@ const routes: Routes = [
   },
   {
     path: 'place-bookings',
-    loadChildren: () => import('./place-bookings/place-bookings.module').then( m => m.PlaceBookingsPageModule)
+    loadChildren: () => import('./offer-bookings/offer-bookings.module').then( m => m.OfferBookingsPageModule)
+  },
+  {
+    path: 'offer-bookings',
+    loadChildren: () => import('./offer-bookings/offer-bookings.module').then( m => m.OfferBookingsPageModule)
   }
 ];
 

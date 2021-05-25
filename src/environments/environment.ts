@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  //https://console.firebase.google.com/u/0/project/be-fit-123456/settings/general
+  firebaseAPIKey:'AIzaSyCXf3edg_XbhIUn8BBOlVGnKs2BwoTen6Y'
 };
 
 /*

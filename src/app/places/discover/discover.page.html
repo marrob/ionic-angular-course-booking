@@ -17,8 +17,8 @@
            <ion-card-title> {{loadedPlaces[0].title}} </ion-card-title>
            <ion-card-subtitle>{{loadedPlaces[0].price|currency}}/Night</ion-card-subtitle>
            <ion-img [src]="loadedPlaces[0].imageUrl"></ion-img>
-           <ion-card-content>
-             <p>{{loadedPlaces[0].description}}</p>
+           <ion-card-content class="ion-text-center">
+             <p> <ion-text color="primary"> {{loadedPlaces[0].description}}</ion-text></p>
            </ion-card-content>
          </ion-card-header>
          <div class="ion-text-center ion-padding">

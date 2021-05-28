@@ -8,7 +8,7 @@ import { EmailValidator } from '@angular/forms';
 export class AuthService {
 
   
-  private _userIsAuthenticated:boolean = true;
+  private _userIsAuthenticated:boolean = false;
   private _userId:string ='';
   
   get userIsAuthenticated(){

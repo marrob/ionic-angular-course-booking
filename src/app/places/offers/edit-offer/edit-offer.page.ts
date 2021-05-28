@@ -12,4 +12,5 @@ export class EditOfferPage implements OnInit {
   ngOnInit() {
   }
 
+
 }

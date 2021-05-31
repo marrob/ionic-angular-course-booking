@@ -226,11 +226,21 @@
     --ion-color-step-950: #f3f3f3;
 
     --ion-item-background: #1e1e1e;
-
-    //--ion-toolbar-background: #1f1f1f;
-    --ion-toolbar-background: gray;
+    --ion-toolbar-background: #1f1f1f;
     --ion-tab-bar-background: #1f1f1f;
 
     --ion-card-background: #1e1e1e;
   }
+
+
+
+ ion-button{
+    --background:rgb(0, 255, 128);
+    --box-shadow: 2px 2px 2px rgba(0,0,0, 0.6);
+    --color:red;
+  }
+
+
+
 }
+ 

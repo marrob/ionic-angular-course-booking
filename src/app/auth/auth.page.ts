@@ -12,6 +12,7 @@ import { LoadingController } from '@ionic/angular';
 export class AuthPage implements OnInit {
 
   isLaoding = false;
+  isLogin: boolean = true;
 
   authForm = {
     title: 'adfad',
@@ -24,10 +25,12 @@ export class AuthPage implements OnInit {
     private router: Router,
     private loadingCtrl: LoadingController) {
   }
-  isLogin: boolean;
   ngOnInit() {
   }
+  
   onSubmit(form: NgForm) {
+    console.log(form);
+
     if (!form.valid) {
       return;
     }
@@ -36,6 +39,10 @@ export class AuthPage implements OnInit {
     console.log("email-password", email, password);
     if (this.isLogin) {}
     else {this.authService.singup(this.authForm.email, this.authForm.password); }
+  }
+
+  onSwitchAuthMode(){
+    this.isLogin =!this.isLogin;
   }
 
   onLogin() { 

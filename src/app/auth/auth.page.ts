@@ -37,6 +37,7 @@ export class AuthPage implements OnInit {
     const email = form.value.email;
     const password = form.value.password;
     console.log("email-password", email, password);
+    this.onLogin();
     if (this.isLogin) {}
     else {this.authService.singup(this.authForm.email, this.authForm.password); }
   }
@@ -57,9 +58,6 @@ export class AuthPage implements OnInit {
           this.router.navigateByUrl('/places/tabs/discover');
         }, 1500);
       });
-
-
-
   }
 
 }

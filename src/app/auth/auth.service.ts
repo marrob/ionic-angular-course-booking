@@ -9,7 +9,7 @@ export class AuthService {
 
   
   private _userIsAuthenticated:boolean = true;
-  private _userId:string ='';
+  private _userId:string ='abc';
   
   get userIsAuthenticated(){
     return this._userIsAuthenticated;

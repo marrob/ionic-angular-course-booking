@@ -12,7 +12,7 @@ import { LoadingController } from '@ionic/angular';
 export class AuthPage implements OnInit {
 
   isLaoding = false;
-  isLogin: boolean = true;
+  isLogin: boolean = false;
 
   authForm = {
     title: 'adfad',

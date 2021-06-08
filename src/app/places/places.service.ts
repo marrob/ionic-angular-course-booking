@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { take, filter, map } from 'rxjs/operators';
+import { take, filter, map, tap, delay } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 import { NewOfferPageModule } from './offers/new-offer/new-offer.module';
 import { Place } from './place.model';
@@ -9,8 +9,11 @@ import { Place } from './place.model';
   providedIn: 'root'
 })
 export class PlacesService {
+  pipe(arg0: any) {
+    throw new Error('Method not implemented.');
+  }
 
-  private _places = new BehaviorSubject<Place[]>( [
+  private _places = new BehaviorSubject<Place[]>([
     new Place(
       'p1',
       'Manhatten Masion',
@@ -43,34 +46,67 @@ export class PlacesService {
     ),
   ]);
 
-  addPlace(title:string, description:string, price :number, dateFrom:Date, dateTo:Date){
-    const newPlace=new Place(
+  addPlace(title: string, description: string, price: number, dateFrom: Date, dateTo: Date) {
+    const newPlace = new Place(
       Math.random.toString(),
-      title, 
+      title,
       description,
       'https://imgs.6sqft.com/wp-content/uploads/2014/06/21042533/Carnegie-Mansion-nyc.jpg',
-      price, 
+      price,
       dateFrom,
       dateTo,
       this.authServcie.userId
     );
 
-    this._places.asObservable().pipe(take(1)).subscribe((places)=>{
-      this._places.next(places.concat(newPlace));
-    });
-    
+    return this._places.asObservable().pipe(
+      take(1),
+      delay(2000),
+      tap(places => {
+        setTimeout(() => {
+          this._places.next(places.concat(newPlace));
+        }, 3000);
+      })
+    );
   }
   get places() {
     return this._places.asObservable();
   }
-  getPlace(id:string) {
+  getPlace(id: string) {
     return this.places.pipe(
-      take(1), 
-      map(places=>{
-        return {...places.find( p=>p.id === id)};
-    }))
-    
+      take(1),
+      
+      map(places => {
+        return { ...places.find(p => p.id === id) };
+      }))
+
   }
 
-  constructor(private authServcie:AuthService) { }
+  UpdateOffer(
+    placeId:string, 
+    title:string,
+    description:string) {
+
+      return this.places.pipe(
+      
+      take(1), 
+      delay(1000),
+      tap(places => {
+        const updatedPlaceIndex = places.findIndex(pl=>pl.id=== placeId);
+        const updatePlaces=[...places];
+        const oldPlace=updatePlaces[updatedPlaceIndex];
+        updatePlaces[updatedPlaceIndex] = new Place(
+          oldPlace.id,
+          title,
+          description,
+          oldPlace.imageUrl,
+          oldPlace.price,
+          oldPlace.availableForm,
+          oldPlace.availableTo,
+          oldPlace.userId
+        );
+          this._places.next(updatePlaces);
+      }));
+    }
+
+  constructor(private authServcie: AuthService) { }
 }

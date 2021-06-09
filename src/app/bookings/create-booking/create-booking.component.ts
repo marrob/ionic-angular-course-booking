@@ -19,8 +19,8 @@ export class CreateBookingComponent implements OnInit {
   constructor(private modalCtrl: ModalController) { }
   ngOnInit() {
 
-    this.startDate = new Date('2021-06-06').toISOString();
-    this.endDate = new Date('2021-06-02').toISOString();
+    /*this.startDate = new Date('2021-06-06').toISOString();
+    this.endDate = new Date('2021-06-02').toISOString();*/
 
     const availableFrom = new Date(this.selectedPlace.availableForm);
     const availableTo = new Date(this.selectedPlace.availableTo);
@@ -52,9 +52,9 @@ export class CreateBookingComponent implements OnInit {
         bookingData: {
           firstName: this.form.value['first-name'],
           lastName: this.form.value['last-name'],
-          gutestNumber: this.form.value['guest-name'],
-          startDate: this.form.value['date-from'],
-          endDate: this.form.value['date-to'],
+          guestNumber: +this.form.value['guest-number'],
+          startDate: new Date(this.form.value['date-from']),
+          endDate: new Date(this.form.value['date-to']),
         }
       }
       , 'confirm');

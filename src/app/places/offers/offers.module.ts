@@ -8,6 +8,7 @@ import { OffersPageRoutingModule } from './offers-routing.module';
 
 import { OffersPage } from './offers.page';
 import { OfferItemComponent } from './offer-item/offer-item.component'
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   imports: [
@@ -15,7 +16,7 @@ import { OfferItemComponent } from './offer-item/offer-item.component'
     FormsModule,
     IonicModule,
     OffersPageRoutingModule,
-    
+    HttpClientModule
   ],
   declarations: [OffersPage, OfferItemComponent ]
 })

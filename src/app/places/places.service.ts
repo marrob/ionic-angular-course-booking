@@ -1,17 +1,19 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { take, filter, map, tap, delay } from 'rxjs/operators';
+import { take,  map, tap, delay } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
-import { NewOfferPageModule } from './offers/new-offer/new-offer.module';
 import { Place } from './place.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PlacesService {
-  pipe(arg0: any) {
-    throw new Error('Method not implemented.');
-  }
+
+  constructor(
+    private authServcie: AuthService,
+    private http:HttpClient
+    ) { }
 
   private _places = new BehaviorSubject<Place[]>([
     new Place(
@@ -58,6 +60,11 @@ export class PlacesService {
       this.authServcie.userId
     );
 
+    return this.http.post('https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/offered-places.json', {...newPlace, id:null})
+    .pipe(tap(respData=>{
+      console.log(respData);
+    }));
+/*
     return this._places.asObservable().pipe(
       take(1),
       delay(2000),
@@ -66,7 +73,7 @@ export class PlacesService {
           this._places.next(places.concat(newPlace));
         }, 3000);
       })
-    );
+    );*/
   }
   get places() {
     return this._places.asObservable();
@@ -108,5 +115,5 @@ export class PlacesService {
       }));
     }
 
-  constructor(private authServcie: AuthService) { }
+  
 }

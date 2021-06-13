@@ -12,18 +12,25 @@ import { PlacesService } from '../places.service';
 })
 export class OffersPage implements OnInit, OnDestroy {
 
-
-  places:Place[];
-  private placesSub:Subscription;
+  offers:Place[];
+  private sub:Subscription;
+  isLoading = false;
 
   constructor(private placesServ:PlacesService,
     private router:Router
     ) { }
 
   ngOnInit() {
-    this.placesSub = this.placesServ.places.subscribe(places=>{
-      this.places = places;
+    this.sub = this.placesServ.places.subscribe(offers=>{
+      this.offers = offers;
     });
+  }
+
+  ionViewWillEnter(){
+    this.isLoading = true;
+      this.placesServ.fetchPlaces().subscribe(()=>{
+        this.isLoading = false;
+      });
   }
 
   onEdit(offerId:string, slidingItem:IonItemSliding){
@@ -33,8 +40,8 @@ export class OffersPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(){
-    if(this.placesSub)
-      this.placesSub.unsubscribe();
+    if(this.sub)
+      this.sub.unsubscribe();
   }
 
 

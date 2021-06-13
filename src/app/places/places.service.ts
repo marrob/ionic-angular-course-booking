@@ -1,9 +1,21 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { stringify } from 'querystring';
 import { BehaviorSubject } from 'rxjs';
-import { take,  map, tap, delay } from 'rxjs/operators';
+import { take,  map, tap, delay, switchMap } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 import { Place } from './place.model';
+
+
+interface PlaceData{
+  availableForm: string;
+  availableTo: string;
+  description: string;
+  imageUrl: string;
+  price: number;
+  title: string;
+  userId: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -49,6 +61,7 @@ export class PlacesService {
   ]);
 
   addPlace(title: string, description: string, price: number, dateFrom: Date, dateTo: Date) {
+    let generatedId:string;
     const newPlace = new Place(
       Math.random.toString(),
       title,
@@ -60,20 +73,19 @@ export class PlacesService {
       this.authServcie.userId
     );
 
-    return this.http.post('https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/offered-places.json', {...newPlace, id:null})
-    .pipe(tap(respData=>{
-      console.log(respData);
-    }));
-/*
-    return this._places.asObservable().pipe(
+    return this.http
+    .post<{name:string}>('https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/offered-places.json', 
+    {...newPlace, id:null}) //ez nullazza is az id küldését
+    .pipe(
+      switchMap(resData=>{
+        generatedId = resData.name;
+        return this.places
+      }),
       take(1),
-      delay(2000),
-      tap(places => {
-        setTimeout(() => {
-          this._places.next(places.concat(newPlace));
-        }, 3000);
-      })
-    );*/
+      tap(places=>{
+        newPlace.id=generatedId;
+        this._places.next(places.concat(newPlace));
+    }));
   }
   get places() {
     return this._places.asObservable();
@@ -86,6 +98,38 @@ export class PlacesService {
         return { ...places.find(p => p.id === id) };
       }))
 
+  }
+
+
+
+  fetchPlaces(){
+    return this.http.get<{[key:string]:PlaceData}>('https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/offered-places.json')
+    .pipe(tap(respData=>{
+      console.log(respData);
+    }),
+    map(respData=>{
+      const places = [];
+      for(const key in respData){
+        if(respData.hasOwnProperty(key)){
+          places.push(
+            new Place(
+              key,
+              respData[key].title,
+              respData[key].description,
+              respData[key].imageUrl,
+              respData[key].price,
+              new Date(respData[key].availableForm),
+              new Date(respData[key].availableTo),
+              respData[key].userId
+          ));
+        }
+      }
+      return places;
+    }),
+    tap(places=>{
+      this._places.next(places);
+    })
+    )
   }
 
   UpdateOffer(

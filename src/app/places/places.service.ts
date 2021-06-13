@@ -28,7 +28,7 @@ export class PlacesService {
     ) { }
 
   private _places = new BehaviorSubject<Place[]>([
-    new Place(
+ /*   new Place(
       'p1',
       'Manhatten Masion',
       'In the heart of the New York City',
@@ -57,7 +57,7 @@ export class PlacesService {
       new Date('2019-01-01'),
       new Date('2019-12-31'),
       'abc'
-    ),
+    ),*/
   ]);
 
   addPlace(title: string, description: string, price: number, dateFrom: Date, dateTo: Date) {

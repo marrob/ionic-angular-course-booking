@@ -16,6 +16,7 @@ import { PlacesService } from '../../places.service';
 export class PlaceDetailPage implements OnInit, OnDestroy {
   place: Place;
   isBookable = false;
+  isLoading = false;
   private placeSub: Subscription;
 
   constructor(
@@ -31,6 +32,7 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.isLoading = true;
     this.route.paramMap.subscribe(paramMap => {
       if (!paramMap.has('placeId')) {
         this.navCtrl.navigateBack('/places/tabs/offers');
@@ -41,13 +43,15 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
       .subscribe(place => {
         this.place = place;
         this.isBookable = place.userId !== this.authService.userId;
+        this.isLoading = false;
       });
+      
     });
   }
 
 
   onBookPlace() {
-
+/*
     this.actionSheetCtrl.create({
       header: 'Choose an Action',
       buttons: [{
@@ -101,7 +105,7 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
               data.endDate).subscribe(() => loadingEl.dismiss());
           });
         }
-      })
+      })*/
   }
 
   ngOnDestroy() {

@@ -28,7 +28,7 @@ export class PlacesService {
     ) { }
 
   private _places = new BehaviorSubject<Place[]>([
- /*   new Place(
+      new Place(
       'p1',
       'Manhatten Masion',
       'In the heart of the New York City',
@@ -57,7 +57,7 @@ export class PlacesService {
       new Date('2019-01-01'),
       new Date('2019-12-31'),
       'abc'
-    ),*/
+    ),
   ]);
 
   addPlace(title: string, description: string, price: number, dateFrom: Date, dateTo: Date) {
@@ -90,14 +90,23 @@ export class PlacesService {
   get places() {
     return this._places.asObservable();
   }
-  getPlace(id: string) {
-    return this.places.pipe(
-      take(1),
-      
-      map(places => {
-        return { ...places.find(p => p.id === id) };
-      }))
 
+
+  getPlace(id: string) {
+    return this.http.get<PlaceData>(`https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/offered-places/${id}.json`)
+    .pipe(
+      map(placeData=>{
+        return new Place(
+          id, 
+          placeData.title,
+          placeData.description,
+          placeData.imageUrl,
+          placeData.price,
+          new Date(placeData.availableForm),
+          new Date(placeData.availableTo),
+          placeData.userId)
+      })
+    )
   }
 
 
@@ -124,7 +133,8 @@ export class PlacesService {
           ));
         }
       }
-      return places;
+    return places;
+  // return [];
     }),
     tap(places=>{
       this._places.next(places);
@@ -132,20 +142,15 @@ export class PlacesService {
     )
   }
 
-  UpdateOffer(
-    placeId:string, 
-    title:string,
-    description:string) {
-
-      return this.places.pipe(
-      
-      take(1), 
-      delay(1000),
-      tap(places => {
+  UpdateOffer(placeId:string, title:string, description:string) {
+    let updatedPlaces:Place[];
+   return this.places.pipe(
+      take(1),
+      switchMap(places=>{
         const updatedPlaceIndex = places.findIndex(pl=>pl.id=== placeId);
-        const updatePlaces=[...places];
-        const oldPlace=updatePlaces[updatedPlaceIndex];
-        updatePlaces[updatedPlaceIndex] = new Place(
+        updatedPlaces=[...places];
+        const oldPlace=updatedPlaces[updatedPlaceIndex];
+        updatedPlaces[updatedPlaceIndex] = new Place(
           oldPlace.id,
           title,
           description,
@@ -155,9 +160,13 @@ export class PlacesService {
           oldPlace.availableTo,
           oldPlace.userId
         );
-          this._places.next(updatePlaces);
-      }));
-    }
-
-  
+        return this.http.put(`https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/offered-places/${placeId}.json`,
+          { ...updatedPlaces[updatedPlaceIndex], id:null }
+        );
+      }),
+      tap(()=>{
+        this._places.next(updatedPlaces);
+      })
+    );
+  }
 }

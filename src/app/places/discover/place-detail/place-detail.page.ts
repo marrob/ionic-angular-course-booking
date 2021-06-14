@@ -32,12 +32,13 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.isLoading = true;
+    
     this.route.paramMap.subscribe(paramMap => {
       if (!paramMap.has('placeId')) {
         this.navCtrl.navigateBack('/places/tabs/offers');
         return;
       }
+      this.isLoading = true;
       this.placeSub = this.placesService
       .getPlace(paramMap.get('placeId'))
       .subscribe(place => {
@@ -51,7 +52,6 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
 
 
   onBookPlace() {
-/*
     this.actionSheetCtrl.create({
       header: 'Choose an Action',
       buttons: [{
@@ -105,7 +105,7 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
               data.endDate).subscribe(() => loadingEl.dismiss());
           });
         }
-      })*/
+      })
   }
 
   ngOnDestroy() {

@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { stringify } from 'querystring';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { take,  map, tap, delay, switchMap } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 import { Place } from './place.model';
@@ -28,7 +28,7 @@ export class PlacesService {
     ) { }
 
   private _places = new BehaviorSubject<Place[]>([
-      new Place(
+     /* new Place(
       'p1',
       'Manhatten Masion',
       'In the heart of the New York City',
@@ -57,7 +57,7 @@ export class PlacesService {
       new Date('2019-01-01'),
       new Date('2019-12-31'),
       'abc'
-    ),
+    ),*/
   ]);
 
   addPlace(title: string, description: string, price: number, dateFrom: Date, dateTo: Date) {
@@ -113,26 +113,25 @@ export class PlacesService {
 
   fetchPlaces(){
     return this.http.get<{[key:string]:PlaceData}>('https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/offered-places.json')
-    .pipe(tap(respData=>{
-      console.log(respData);
-    }),
-    map(respData=>{
-      const places = [];
-      for(const key in respData){
-        if(respData.hasOwnProperty(key)){
-          places.push(
-            new Place(
-              key,
-              respData[key].title,
-              respData[key].description,
-              respData[key].imageUrl,
-              respData[key].price,
-              new Date(respData[key].availableForm),
-              new Date(respData[key].availableTo),
-              respData[key].userId
-          ));
+    .pipe(
+      //tap(respData=>{console.log(respData);}),
+      map(respData=>{
+        const places = [];
+        for(const key in respData){
+          if(respData.hasOwnProperty(key)){
+            places.push(
+              new Place(
+                key,
+                respData[key].title,
+                respData[key].description,
+                respData[key].imageUrl,
+                respData[key].price,
+                new Date(respData[key].availableForm),
+                new Date(respData[key].availableTo),
+                respData[key].userId
+            ));
+          }
         }
-      }
     return places;
   // return [];
     }),
@@ -143,9 +142,18 @@ export class PlacesService {
   }
 
   UpdateOffer(placeId:string, title:string, description:string) {
-    let updatedPlaces:Place[];
+   let updatedPlaces:Place[];
    return this.places.pipe(
       take(1),
+      switchMap(places=>{
+        if(!places || places.length<=0){
+          return this.fetchPlaces();
+        }
+        else {
+          return of(places);
+        }
+
+      }),
       switchMap(places=>{
         const updatedPlaceIndex = places.findIndex(pl=>pl.id=== placeId);
         updatedPlaces=[...places];
@@ -168,5 +176,7 @@ export class PlacesService {
         this._places.next(updatedPlaces);
       })
     );
+
+    return this.places;
   }
 }

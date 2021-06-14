@@ -11,7 +11,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./discover.page.scss'],
 })
 export class DiscoverPage implements OnInit, OnDestroy {
-  loadedPlaces:Place[];s
+  loadedPlaces:Place[];
   listedLoadedPlaces:Place[];
   private placesSub:Subscription;
   isLoading = false;
@@ -21,10 +21,11 @@ export class DiscoverPage implements OnInit, OnDestroy {
     private menuCtrl:MenuController) { }
 
   ngOnInit() {
-
+  this.isLoading = true;
    this.placesSub = this.placesService.places.subscribe(places=>{
       this.loadedPlaces = places;
       this.listedLoadedPlaces=this.loadedPlaces.slice(1);
+      this.isLoading = false;
     });
 
   }

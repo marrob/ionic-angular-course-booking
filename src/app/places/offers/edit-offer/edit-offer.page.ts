@@ -1,9 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LoadingController, NavController } from '@ionic/angular';
+import { AlertController, LoadingController, NavController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
-import { take, tap } from 'rxjs/operators';
 import { Place } from '../../place.model';
 import { PlacesService } from '../../places.service';
 
@@ -23,7 +22,8 @@ export class EditOfferPage implements OnInit, OnDestroy {
     private router:Router,
     private placesService: PlacesService,
     private navCtrl: NavController,
-    private loaderCtrl:LoadingController
+    private loaderCtrl:LoadingController,
+    private alertCtrl:AlertController
   ) { }
 
   place: Place;
@@ -39,9 +39,10 @@ export class EditOfferPage implements OnInit, OnDestroy {
       }
       this.placeId = paramMap.get('placeId');
 
-      this.placeSub = this.placesService.getPlace(paramMap.get('placeId')).subscribe(place => {
+      this.placeSub = this.placesService.getPlace(paramMap.get('placeId'))
+        .subscribe(place => {
         this.place = place;
-       this.form = new FormGroup({
+        this.form = new FormGroup({
           title: new FormControl(this.place.title, {
             updateOn: 'blur',
             validators: [Validators.required]
@@ -50,9 +51,19 @@ export class EditOfferPage implements OnInit, OnDestroy {
           description: new FormControl(this.place.description, {
             updateOn: 'blur',
             validators: [Validators.required, Validators.maxLength(180)]
-          }),
+          })
         });
        this.isLoading=false;
+      }, error=>{
+        this.alertCtrl.create({
+          header:'An error occured!',
+          message: 'Place could not be feched. Please try again later.',
+          buttons:[{text:'Okey', handler:()=>{
+            this.router.navigate(['/places/tabs/offers']);
+          }}]
+        }).then(alertEl =>{
+          alertEl.present();
+        })
       });
     });
   }

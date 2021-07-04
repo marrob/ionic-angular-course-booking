@@ -14,6 +14,7 @@ import { of } from 'rxjs';
   styleUrls: ['./location-picker.component.scss'],
 })
 export class LocationPickerComponent implements OnInit {
+  selectedLocationImage:string;
 
   constructor(private modalCtrl: ModalController,
     private http:HttpClient) { 
@@ -37,9 +38,13 @@ export class LocationPickerComponent implements OnInit {
           this.getAddress(modalData.data.lat, modalData.data.lng).pipe(
             switchMap(address => {
               picketLocation.address = address;
-              return of(this.getMapImage(picketLocation.lat, picketLocation.lng, 14));
+              let temp = this.getMapImage(picketLocation.lat, picketLocation.lng, 14)
+              return of(temp);
             })
-          ).subscribe(staticMapImgUrl => picketLocation.staticMapImageUrl = staticMapImgUrl);
+          ).subscribe(staticMapImgUrl => {
+            picketLocation.staticMapImageUrl = staticMapImgUrl;
+            this.selectedLocationImage = staticMapImgUrl;
+            });
         });
         modalEl.present();
       })
@@ -59,7 +64,7 @@ export class LocationPickerComponent implements OnInit {
   private getMapImage(lat:number, lng:number, zoom:number){
     return `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=${zoom}&size=500x300&maptype=roadmap
     &markers=color:blue%7Clabel:Place%7C${lat},${lng},
-    &key=${environment.googleMapsAPIKey}`
+    &key=${environment.googleMapsAPIKey}`;
   }
 
 }

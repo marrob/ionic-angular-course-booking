@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { MapModalComponent } from '../../map-modal/map-modal.component';
 import {environment} from '../../../../environments/environment'
@@ -15,7 +15,7 @@ import { of } from 'rxjs';
 })
 export class LocationPickerComponent implements OnInit {
   selectedLocationImage:string;
-
+  @Output() locationPick = new EventEmitter<PlaceLocation>();
   constructor(private modalCtrl: ModalController,
     private http:HttpClient) { 
 
@@ -44,6 +44,7 @@ export class LocationPickerComponent implements OnInit {
           ).subscribe(staticMapImgUrl => {
             picketLocation.staticMapImageUrl = staticMapImgUrl;
             this.selectedLocationImage = staticMapImgUrl;
+            this.locationPick.emit(picketLocation);
             });
         });
         modalEl.present();
@@ -63,7 +64,7 @@ export class LocationPickerComponent implements OnInit {
 
   private getMapImage(lat:number, lng:number, zoom:number){
     return `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=${zoom}&size=500x300&maptype=roadmap
-    &markers=color:blue%7Clabel:Place%7C${lat},${lng},
+    &markers=color:blue%7Clabel:Place%7C${lat},${lng}
     &key=${environment.googleMapsAPIKey}`;
   }
 

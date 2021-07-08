@@ -1,11 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ActionSheetController, AlertController, ModalController } from '@ionic/angular';
 import { MapModalComponent } from '../../map-modal/map-modal.component';
 import {environment} from '../../../../environments/environment'
 import { map, switchMap } from 'rxjs/operators';
-import { PlaceLocation } from 'src/app/places/offers/location.model';
+import { PlaceLocation, Coordinates } from 'src/app/places/offers/location.model';
 import { of } from 'rxjs';
+import { Plugins, Capacitor } from '@capacitor/core';
+
 
 
 @Component({
@@ -16,39 +18,90 @@ import { of } from 'rxjs';
 export class LocationPickerComponent implements OnInit {
   selectedLocationImage:string;
   @Output() locationPick = new EventEmitter<PlaceLocation>();
-  constructor(private modalCtrl: ModalController,
-    private http:HttpClient) { 
-
-  }
+  isLoading = false;
+  constructor(
+    private modalCtrl: ModalController,
+    private http:HttpClient,
+    private actionSheetCtrl:ActionSheetController,
+    private alertCtrl:AlertController) {} 
 
   ngOnInit() {}
 
   onPickLocation(){
-    this.modalCtrl.create({component:MapModalComponent})
-      .then(modalEl=>{
-        modalEl.onDidDismiss().then(modalData=>{
-          if(!modalData.data)
-            return;
-          const picketLocation:PlaceLocation = {
-            lat: modalData.data.lat,
-            lng: modalData.data.lng,
-            address:null,
-            staticMapImageUrl:null
-          };
-          this.getAddress(modalData.data.lat, modalData.data.lng).pipe(
-            switchMap(address => {
-              picketLocation.address = address;
-              let temp = this.getMapImage(picketLocation.lat, picketLocation.lng, 14)
-              return of(temp);
-            })
-          ).subscribe(staticMapImgUrl => {
-            picketLocation.staticMapImageUrl = staticMapImgUrl;
-            this.selectedLocationImage = staticMapImgUrl;
-            this.locationPick.emit(picketLocation);
-            });
-        });
-        modalEl.present();
+    this.actionSheetCtrl.create({header:'Please Choose', buttons:[
+      { text:'Auto-Locate', handler:()=>{this.locateUser()}},
+      { text:'Pick on Map', handler:()=>{this.openMap()}},
+      { text:'Cancel', role:'cancel'},
+
+    ]}).then(actionSheetEl=>{
+      actionSheetEl.present();
+    });
+  }
+
+  private locateUser(){
+    if(!Capacitor.isPluginAvailable('Geolocation')){
+      this.showErrorAlret();
+        return;
+    }
+    this.isLoading=true;
+    Plugins.Geolocation.getCurrentPosition().then(geoPosition=>{
+      const coordinates: Coordinates = { 
+        lat: geoPosition.coords.latitude, 
+        lng: geoPosition.coords.longitude
+      }
+      this.createPlace(coordinates.lat, coordinates.lng);
+      this.isLoading=false;
+    }).catch(err=>{
+      this.isLoading=false;
+      this.showErrorAlret();
+    })
+  }
+
+  private showErrorAlret(){
+      this.alertCtrl.create({
+        header:'Could not fetch location',
+        message:'Please use the mapt to pick a location'})
+          .then(alert=>alert.present());
+  }
+
+  private createPlace(lat: number, lng: number){
+    const picketLocation:PlaceLocation = {
+      lat: lat,
+      lng: lng,
+      address:null,
+      staticMapImageUrl:null
+    };
+    this.isLoading = true;
+    this.getAddress(lat, lng)
+    .pipe(
+      switchMap(address => {
+        picketLocation.address = address;
+        let temp = this.getMapImage(picketLocation.lat, picketLocation.lng, 14)
+        return of(temp);
       })
+    ).subscribe(staticMapImgUrl => {
+      picketLocation.staticMapImageUrl = staticMapImgUrl;
+      this.selectedLocationImage = staticMapImgUrl;
+      this.isLoading = false; 
+      this.locationPick.emit(picketLocation);
+      });
+  }
+
+  private openMap()
+  {
+    this.modalCtrl.create({component:MapModalComponent})
+    .then(modalEl=>{
+      modalEl.onDidDismiss().then(modalData=>{
+        if(!modalData.data)
+          return;
+        const coordinates:Coordinates = {
+          lat: modalData.data.lat,
+          lng: modalData.data.lng
+        };  
+        this.createPlace(coordinates.lat, coordinates.lng);
+      });
+      modalEl.present();
+    })
   }
 
   private getAddress(lat:number, lng:number){

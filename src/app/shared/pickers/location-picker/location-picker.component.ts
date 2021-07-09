@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { ActionSheetController, AlertController, ModalController } from '@ionic/angular';
 import { MapModalComponent } from '../../map-modal/map-modal.component';
-import {environment} from '../../../../environments/environment'
+import { environment} from '../../../../environments/environment'
 import { map, switchMap } from 'rxjs/operators';
 import { PlaceLocation, Coordinates } from 'src/app/places/offers/location.model';
 import { of } from 'rxjs';

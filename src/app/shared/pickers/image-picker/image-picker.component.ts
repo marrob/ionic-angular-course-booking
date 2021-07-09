@@ -16,7 +16,8 @@ export class ImagePickerComponent implements OnInit {
 
   onPickImage(){
 
-    if(Capacitor.isPluginAvailable('Camera')){
+    if(!Capacitor.isPluginAvailable('Camera')){
+      console.log('there is no camera');
       return;
     }
     Plugins.Camera.getPhoto({
@@ -27,7 +28,7 @@ export class ImagePickerComponent implements OnInit {
       width:200,
       resultType:CameraResultType.Base64
     }).then(image=>{
-      this.selectedImage = image.base64String;
+      this.selectedImage = image.dataUrl;
       this.imagePick.emit(image.base64String);
     }).catch(error=>{
       console.log(error);

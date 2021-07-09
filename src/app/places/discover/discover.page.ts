@@ -22,10 +22,13 @@ export class DiscoverPage implements OnInit, OnDestroy {
 
   ngOnInit() {
   this.isLoading = true;
-   this.placesSub = this.placesService.places.subscribe(places=>{
+    this.placesSub = this.placesService.places.subscribe(places=>{
       this.loadedPlaces = places;
       this.listedLoadedPlaces=this.loadedPlaces.slice(1);
       this.isLoading = false;
+    },
+    error=>{
+      console.log(error);
     });
 
   }
@@ -41,7 +44,7 @@ export class DiscoverPage implements OnInit, OnDestroy {
       });
   }
 
-  onFilterUpdate(event:CustomEvent<SegmentChangeEventDetail>){
+  onFilterUpdate(event/*:CustomEvent<SegmentChangeEventDetail>*/){
     console.log(event.detail);
   }
 

@@ -1,7 +1,7 @@
 {
   "appId": "io.ionic.starter",
   "appName": "ionic-nav",
-  "bundledWebRuntime": false,
+  "bundledWebRuntime": true,
   "npmClient": "npm",
   "webDir": "www",
   "plugins": {

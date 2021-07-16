@@ -62,13 +62,13 @@ export class PlacesService {
     ),*/
   ]);
 
-  addPlace(title: string, description: string, price: number, dateFrom: Date, dateTo: Date, location:PlaceLocation) {
+  addPlace(title: string, description: string, price: number, dateFrom: Date, dateTo: Date, location:PlaceLocation, imageUrl:string) {
     let generatedId:string;
     const newPlace = new Place(
       Math.random.toString(),
       title,
       description,
-      'https://imgs.6sqft.com/wp-content/uploads/2014/06/21042533/Carnegie-Mansion-nyc.jpg',
+      imageUrl,
       price,
       dateFrom,
       dateTo,
@@ -92,6 +92,13 @@ export class PlacesService {
   }
   get places() {
     return this._places.asObservable();
+  }
+
+  uploadImage(image: File){
+    const uploadData = new FormData();
+    uploadData.append('image', image);
+    return this.http.post<{imageUrl:string, imagePth:string}>('https://us-central1-ionic-angular-course-2646a.cloudfunctions.net/storeImage', uploadData);
+
   }
 
 

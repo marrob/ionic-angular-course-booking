@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoadingController } from '@ionic/angular';
+import { switchMap } from 'rxjs/operators';
 import { PlacesService } from '../../places.service';
 import { PlaceLocation } from '../location.model';
 
@@ -85,20 +86,24 @@ export class NewOfferPage implements OnInit {
       message:'Creating place...'
     }).then(loadingEl=>{
       loadingEl.present();
- 
+      this.placesService.uploadImage(this.form.get('image').value).pipe(switchMap(upload=>{
+        return this.placesService.addPlace(
+          this.form.value.title,
+          this.form.value.description,
+          +this.form.value.price,
+          new Date(this.form.value.dateFrom),
+          new Date(this.form.value.dateTo),
+          this.form.value.location,
+          upload.imageUrl
+          )
+      })
+      ).subscribe(()=>{
+        loadingEl.dismiss();
+        this.form.reset();
+        this.router.navigate(['/places/tabs/offers']);
+      });
       console.log('crateing offer place');
-      this.placesService.addPlace(
-        this.form.value.title,
-        this.form.value.description,
-        +this.form.value.price,
-        new Date(this.form.value.dateFrom),
-        new Date(this.form.value.dateTo),
-        this.form.value.location
-        ).subscribe(()=>{
-          loadingEl.dismiss();
-          this.form.reset();
-          this.router.navigate(['/places/tabs/offers']);
-        });
+
     });
   }
 

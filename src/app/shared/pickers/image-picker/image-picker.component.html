@@ -3,7 +3,7 @@
     class="image" 
     [src]="selectedImage" 
     (click)="onPickImage()"
-    *ngIf="selectedImage"
+    *ngIf="selectedImage && showPreview"
     ></ion-img>
   <ion-button 
     color="primary" 
@@ -17,4 +17,4 @@
 
 <label for="file" #filePickerLabel hidden>FILE</label>
 
-<input type="file" id="file" [hidden]="!usePicker" #filePicker (change)="onFileChosen($event)">
+<input type="file" accept = "image/jpeg" id="file" [hidden]="!usePicker" #filePicker (change)="onFileChosen($event)">

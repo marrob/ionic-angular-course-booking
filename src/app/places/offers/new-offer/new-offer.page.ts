@@ -75,14 +75,17 @@ export class NewOfferPage implements OnInit {
 
   }
   onCreateOffer(){
+    if(!this.form.valid || !this.form.get('image').value){
+      return;
+    }
 
+    console.log('onCreate Offer', this.form.value);
+      
     this.loaderCtrl.create({
       message:'Creating place...'
     }).then(loadingEl=>{
       loadingEl.present();
  
-      if(!this.form.valid)
-        return;
       console.log('crateing offer place');
       this.placesService.addPlace(
         this.form.value.title,
@@ -102,13 +105,13 @@ export class NewOfferPage implements OnInit {
   onImagePicked(imageData:string | File){
 
     
-    console.log("image data" + imageData);
+    console.log("onImagePicked.data:" + imageData);
     
     let imageFile;
 
     if(typeof imageData =='string'){
       try{
-        imageFile = base64toBlob(imageData.replace('data:image/jpeg;base64',''),'image/jpeg');
+        imageFile = base64toBlob(imageData.replace('data:image/png;base64',''),'image/png');// data:image/png;base64
       }catch(error){
         console.log(error);
         return;

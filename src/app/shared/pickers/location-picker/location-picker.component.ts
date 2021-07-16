@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ActionSheetController, AlertController, ModalController } from '@ionic/angular';
 import { MapModalComponent } from '../../map-modal/map-modal.component';
 import { environment} from '../../../../environments/environment'
@@ -18,6 +18,7 @@ import { Plugins, Capacitor } from '@capacitor/core';
 export class LocationPickerComponent implements OnInit {
   selectedLocationImage:string;
   @Output() locationPick = new EventEmitter<PlaceLocation>();
+  @Input() showPreview = false;
   isLoading = false;
   constructor(
     private modalCtrl: ModalController,

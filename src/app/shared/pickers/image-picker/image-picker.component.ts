@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, destroyPlatform, ElementRef, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, destroyPlatform, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { Plugins,Capacitor, CameraSource, CameraResultType } from '@capacitor/core';
 import { Platform } from '@ionic/angular';
 
@@ -11,6 +11,7 @@ import { Platform } from '@ionic/angular';
 export class ImagePickerComponent implements OnInit, AfterViewInit {
   selectedImage:string;
   @Output() imagePick = new EventEmitter<string | File>();
+  @Input() showPreview = false;
   @ViewChild('filePicker') filePicker:ElementRef<HTMLInputElement>
   @ViewChild('filePickerLabel') filePickerLabel:ElementRef<HTMLInputElement>
   usePicker = false;
@@ -36,7 +37,7 @@ export class ImagePickerComponent implements OnInit, AfterViewInit {
 
   onPickImage(){
 
-    if(!Capacitor.isPluginAvailable('Camera') || this.usePicker){
+    if(!Capacitor.isPluginAvailable('Camera') ){
       console.log('Picker', this.usePicker);
       console.log('there is no camera');
       this.filePickerLabel.nativeElement.click();
@@ -46,21 +47,28 @@ export class ImagePickerComponent implements OnInit, AfterViewInit {
       quality:50,
       source:CameraSource.Prompt,
       correctOrientation:true,
+      
       height:320,
       width:200,
-      resultType:CameraResultType.DataUrl
+      resultType:CameraResultType.Base64
     }).then(image=>{
-      this.selectedImage = image.dataUrl;
-      //console.log('selectedImage:',this.selectedImage);
+      this.selectedImage =  `data:image/jpeg;base64,${image.base64String}`; //image.base64String;
+
+      console.log('selectedImage:',this.selectedImage);
+      
       this.imagePick.emit(image.base64String);
     }).catch(error=>{
-      console.log(error);
+      console.log("Plugins.Camera.getPhoto.error", error);
+      if(this.usePicker){
+        this.filePickerLabel.nativeElement.click();
+      }
+      return false;
     })
 
   }
 
   onFileChosen(event:Event){
-    console.log(event);
+    console.log("onFileChosen:", event);
 
     const pickedFile = (event.target as HTMLInputElement).files[0];
     if(!pickedFile){

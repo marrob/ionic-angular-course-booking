@@ -43,11 +43,11 @@
             <ion-spinner color="primary" *ngIf="isLaoding"></ion-spinner>
           </div>
           <ion-button 
-            type="submit"
-            color="primary"
-            expand="full"
-            [disabled]="!f.valid"
-            *ngIf="!isLaoding"> Login </ion-button>
+          type="submit"
+          color="primary"
+          expand="full"
+          [disabled]="!f.valid"
+          *ngIf="!isLaoding"> {{ isLogin ? 'Login' : 'Signup'}} </ion-button>
         </ion-col>
       </ion-row>
     </ion-grid>

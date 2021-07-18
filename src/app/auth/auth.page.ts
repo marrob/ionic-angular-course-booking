@@ -4,6 +4,7 @@ import { NgForm, } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoadingController } from '@ionic/angular';
 
+
 @Component({
   selector: 'app-auth',
   templateUrl: './auth.page.html',
@@ -38,8 +39,14 @@ export class AuthPage implements OnInit {
     const password = form.value.password;
     console.log("email-password", email, password);
     this.onLogin();
-    if (this.isLogin) {}
-    else {this.authService.singup(this.authForm.email, this.authForm.password); }
+    if (this.isLogin) {
+
+    }
+    else {
+      this.authService.singupV2(email, password).subscribe(resData=>{
+        console.log(resData);
+      })
+    }
   }
 
   onSwitchAuthMode(){

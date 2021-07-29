@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>{{isLogin ? 'Signup':'Login'}}</ion-title>
+    <ion-title>{{isLogin ? 'Login':'Signup'}}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -38,7 +38,8 @@
            color="primary"
            fill="clear"
            expand="full"
-           >Switch to Login {{isLogin ? 'Signup':'Login'}}  </ion-button>
+           (click)="onSwitchAuthMode()"
+           >Switch to Login {{isLogin ? 'Signup':'Login'}} </ion-button>
           <div class="ion-text-center">
             <ion-spinner color="primary" *ngIf="isLaoding"></ion-spinner>
           </div>

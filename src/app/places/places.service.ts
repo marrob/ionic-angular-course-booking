@@ -29,78 +29,49 @@ export class PlacesService {
     private http:HttpClient
     ) { }
 
-  private _places = new BehaviorSubject<Place[]>([
-     /* new Place(
-      'p1',
-      'Manhatten Masion',
-      'In the heart of the New York City',
-      'https://imgs.6sqft.com/wp-content/uploads/2014/06/21042533/Carnegie-Mansion-nyc.jpg',
-      149.9,
-      new Date('2019-01-01'),
-      new Date('2019-12-31'),
-      'abc'
-    ),
-    new Place(
-      'p2',
-      'L\'Amour Toujours',
-      'A romintc place in Paris!',
-      'https://myldrwithafrenchman.files.wordpress.com/2017/01/eiffel_tower_in_paris__france_073036_.jpg?w=1118',
-      189.9,
-      new Date('2019-01-01'),
-      new Date('2019-12-31'),
-      'abc'
-    ),
-    new Place(
-      'p3',
-      'The Foggy Palace',
-      'Not your average city trip',
-      'https://i.pinimg.com/originals/9c/88/44/9c8844b217bdb6c17db14f51ad2e51a5.jpg',
-      99.9,
-      new Date('2019-01-01'),
-      new Date('2019-12-31'),
-      'abc'
-    ),*/
-  ]);
+  get places() {
+    return this._places.asObservable();
+  }
+  private _places = new BehaviorSubject<Place[]>([ ]);
 
   addPlace(title: string, description: string, price: number, dateFrom: Date, dateTo: Date, location:PlaceLocation, imageUrl:string) {
     let generatedId:string;
-    const newPlace = new Place(
-      Math.random.toString(),
-      title,
-      description,
-      imageUrl,
-      price,
-      dateFrom,
-      dateTo,
-      this.authServcie.userId,
-      location
-    );
-
-    return this.http
-    .post<{name:string}>('https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/offered-places.json', 
-    {...newPlace, id:null}) //ez nullazza is az id küldését
-    .pipe(
+    let newPlace:Place; 
+    return this.authServcie.userId.pipe(
+      take(1), 
+      switchMap(userId=>{
+        if(!userId)
+          throw new Error('No User');
+            newPlace = new Place(
+            Math.random.toString(),
+            title,
+            description,
+            imageUrl,
+            price,
+            dateFrom,
+            dateTo,
+            userId,
+            location
+          );   
+          return this.http.post<{name:string}>('https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/offered-places.json', 
+            {...newPlace, id:null})
+      }),
       switchMap(resData=>{
         generatedId = resData.name;
         return this.places
       }),
       take(1),
       tap(places=>{
-        newPlace.id=generatedId;
+        newPlace.id = generatedId;
         this._places.next(places.concat(newPlace));
     }));
-  }
-  get places() {
-    return this._places.asObservable();
   }
 
   uploadImage(image: File){
     const uploadData = new FormData();
     uploadData.append('image', image);
     return this.http.post<{imageUrl:string, imagePth:string}>('https://us-central1-ionic-angular-course-2646a.cloudfunctions.net/storeImage', uploadData);
-
   }
-
 
   getPlace(id: string) {
     return this.http.get<PlaceData>(`https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/offered-places/${id}.json`)
@@ -125,7 +96,6 @@ export class PlacesService {
   fetchPlaces(){
     return this.http.get<{[key:string]:PlaceData}>('https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/offered-places.json')
     .pipe(
-      //tap(respData=>{console.log(respData);}),
       map(respData=>{
         const places = [];
         for(const key in respData){
@@ -145,7 +115,6 @@ export class PlacesService {
           }
         }
     return places;
-  // return [];
     }),
     tap(places=>{
       this._places.next(places);

@@ -23,7 +23,6 @@ const routes: Routes = [
     canLoad:[AuthGuard]
   },
 ];
-
 @NgModule({
   imports: [
     RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules, /*enableTracing: true*/ })

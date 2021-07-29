@@ -96,14 +96,15 @@ export class NewOfferPage implements OnInit {
           this.form.value.location,
           upload.imageUrl
           )
-      })
-      ).subscribe(()=>{
+      })).subscribe(
+        ()=>{
         loadingEl.dismiss();
         this.form.reset();
         this.router.navigate(['/places/tabs/offers']);
-      });
-      console.log('crateing offer place');
-
+        },
+        (error) =>{
+          console.log ('onCreateOffer', error);
+        });
     });
   }
 

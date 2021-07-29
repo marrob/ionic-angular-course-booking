@@ -43,24 +43,29 @@ export class BookingService {
     dateFrom:Date,
     dateTo:Date){
       let generatedId:string;
-      const newBooking = new Booking(
-        Math.random().toString(),
-        placeId,
-        this.autService.userId,
-        placeTitle,
-        placeImage,
-        firstName,
-        lastName,
-        guestNumber,
-        dateFrom,
-        dateTo 
-      );
-
-
-      return this.http
-      .post<{name:string}>('https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/bookings.json', 
-      {...newBooking, id:null}) //ez nullazza is az id küldését
-      .pipe(
+      let newBooking :Booking;
+      return this.autService.userId.pipe(
+        take(1), 
+        switchMap(userId=>{
+        if(!userId){
+          throw new Error('No User Id Found');
+        }
+          newBooking = new Booking(
+            Math.random().toString(),
+            placeId,
+            userId,
+            placeTitle,
+            placeImage,
+            firstName,
+            lastName,
+            guestNumber,
+            dateFrom,
+            dateTo 
+          );
+          return this.http
+          .post<{name:string}>('https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/bookings.json', 
+          {...newBooking, id:null}) //ez nullazza is az id küldését
+        }),
         switchMap(resData=>{
           generatedId = resData.name;
           return this.bookings;

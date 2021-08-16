@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { BehaviorSubject, from } from 'rxjs';
@@ -18,11 +18,11 @@ export interface AuthResponseData{
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService {
+export class AuthService implements OnDestroy {
   private _userIsAuthenticated:boolean = false;
   private _user = new BehaviorSubject<User>(null);
   private _token = new BehaviorSubject<string>(null);
-
+  private activeLogoutTimer:any;
   constructor(private http:HttpClient) { }
   
   get userIsAuthenticated(){
@@ -41,6 +41,16 @@ export class AuthService {
       map(user=> {
         if(user)
           return user.id;
+        else
+          return null;
+      }));
+  }
+
+  get token(){
+    return this._user.asObservable().pipe(
+      map(user=> {
+        if(user)
+          return user.token;
         else
           return null;
       }));
@@ -67,13 +77,18 @@ export class AuthService {
     }
     
     logout(){
+      if(this.activeLogoutTimer){
+        clearTimeout(this.activeLogoutTimer);
+      }
       this._user.next(null);
+      Plugins.Storage.remove({key:'authData'});
     }
 
     private setUserData(userData: AuthResponseData ){
       const expirationTime = new Date(new Date().getTime() + (+userData.expiresIn * 1000 ));
-            this._user.next(new User(userData.localId, userData.email, userData.idToken, expirationTime));
-
+            const user = new User(userData.localId, userData.email, userData.idToken, expirationTime);
+            this._user.next(user);
+            this.autoLogout(user.tokenDuration);
             this.storeAuthData(userData.localId, userData.idToken, expirationTime.toISOString(), userData.email);
     }
 
@@ -92,8 +107,10 @@ export class AuthService {
           return user;
         }), 
         tap(user=>{
-          if(user)
+          if(user){
             this._user.next(user);
+            this.autoLogout(user.tokenDuration);
+          }
         }),
         map(user=>{
           return !!user;
@@ -108,5 +125,22 @@ export class AuthService {
       email:string){
           const data = JSON.stringify({userId:userId, token:token, tokenExpirationDate:tokenExpirationDate, email:email});
           Plugins.Storage.set({key:'authData',value:data})
+    }
+
+    private autoLogout(duration:number){
+      if(this.activeLogoutTimer){
+        clearTimeout(this.activeLogoutTimer);
       }
+      this.activeLogoutTimer = setTimeout(()=>{
+        this.logout();
+      },  duration);
+    }
+
+    ngOnDestroy(){
+      if(this.activeLogoutTimer){
+        clearTimeout(this.activeLogoutTimer);
+      }
+    }
+
+
 }

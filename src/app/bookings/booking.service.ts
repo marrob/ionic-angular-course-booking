@@ -92,6 +92,7 @@ export class BookingService {
 
   fetchBookings(){
     return this.autService.userId.pipe(
+    take(1),
     switchMap(userId=>{    
       if(!userId)
         throw new Error('User Not Found');

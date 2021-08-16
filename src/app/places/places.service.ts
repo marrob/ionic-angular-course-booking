@@ -94,31 +94,34 @@ export class PlacesService {
 
 
   fetchPlaces(){
-    return this.http.get<{[key:string]:PlaceData}>('https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/offered-places.json')
-    .pipe(
+    return this.authServcie.token.pipe(
+      switchMap(token=>{
+        return this.http.get<{[key:string]:PlaceData}>
+          (`https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/offered-places.json?auth=${token}`)
+      }),  
       map(respData=>{
-        const places = [];
-        for(const key in respData){
-          if(respData.hasOwnProperty(key)){
-            places.push(
-              new Place(
-                key,
-                respData[key].title,
-                respData[key].description,
-                respData[key].imageUrl,
-                respData[key].price,
-                new Date(respData[key].availableForm),
-                new Date(respData[key].availableTo),
-                respData[key].userId,
-                respData[key].location
-            ));
-          }
+      const places = [];
+      for(const key in respData){
+        if(respData.hasOwnProperty(key)){
+          places.push(
+            new Place(
+              key,
+              respData[key].title,
+              respData[key].description,
+              respData[key].imageUrl,
+              respData[key].price,
+              new Date(respData[key].availableForm),
+              new Date(respData[key].availableTo),
+              respData[key].userId,
+              respData[key].location
+          ));
         }
-    return places;
-    }),
-    tap(places=>{
-      this._places.next(places);
-    })
+      }
+      return places;
+      }),
+      tap(places=>{
+        this._places.next(places);
+      })
     )
   }
 

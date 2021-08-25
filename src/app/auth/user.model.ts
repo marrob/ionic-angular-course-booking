@@ -14,7 +14,7 @@ export class User{
       return 0 
     else{
       //return 5000
-        this.tokenExpirationDate.getTime() - new Date().getTime();
+      return this.tokenExpirationDate.getTime() - new Date().getTime();
     }
   }
 }

@@ -37,10 +37,15 @@ export class PlacesService {
   addPlace(title: string, description: string, price: number, dateFrom: Date, dateTo: Date, location:PlaceLocation, imageUrl:string) {
     let generatedId:string;
     let newPlace:Place; 
+    let userId:string;
     return this.authServcie.userId.pipe(
       take(1), 
       switchMap(userId=>{
-        if(!userId)
+        userId = userId;
+        return this.authServcie.token;
+      }),
+      switchMap(token=>{
+        if(!token)
           throw new Error('No User');
             newPlace = new Place(
             Math.random.toString(),
@@ -53,7 +58,7 @@ export class PlacesService {
             userId,
             location
           );   
-          return this.http.post<{name:string}>('https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/offered-places.json', 
+          return this.http.post<{name:string}>(`https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/offered-places.json?auth=${token}`, 
             {...newPlace, id:null})
       }),
       switchMap(resData=>{
@@ -70,12 +75,22 @@ export class PlacesService {
   uploadImage(image: File){
     const uploadData = new FormData();
     uploadData.append('image', image);
-    return this.http.post<{imageUrl:string, imagePth:string}>('https://us-central1-ionic-angular-course-2646a.cloudfunctions.net/storeImage', uploadData);
+    return this.authServcie.token.pipe( 
+        take(1),
+        switchMap(token=>{ 
+        return this.http.post<{imageUrl:string, imagePth:string}>('https://us-central1-ionic-angular-course-2646a.cloudfunctions.net/storeImage',
+         uploadData,
+        { headers: { Authorization:'Bearer' + token } });
+      }))
+   
   }
 
   getPlace(id: string) {
-    return this.http.get<PlaceData>(`https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/offered-places/${id}.json`)
-    .pipe(
+    return this.authServcie.token.pipe(
+      take(1),
+      switchMap(token=>{
+        return this.http.get<PlaceData>(`https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/offered-places/${id}.json?auth=${token}`)
+      }),
       map(placeData=>{
         return new Place(
           id, 
@@ -95,6 +110,7 @@ export class PlacesService {
 
   fetchPlaces(){
     return this.authServcie.token.pipe(
+      take(1),
       switchMap(token=>{
         return this.http.get<{[key:string]:PlaceData}>
           (`https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/offered-places.json?auth=${token}`)
@@ -126,8 +142,14 @@ export class PlacesService {
   }
 
   UpdateOffer(placeId:string, title:string, description:string) {
-   let updatedPlaces:Place[];
-   return this.places.pipe(
+    let updatedPlaces:Place[];
+    let fetchedToken:string;
+    return this.authServcie.token.pipe(
+      take(1),
+      switchMap(token=>{ 
+        fetchedToken = token;
+        return this.places;
+      }),
       take(1),
       switchMap(places=>{
         if(!places || places.length<=0){
@@ -153,7 +175,7 @@ export class PlacesService {
           oldPlace.userId,
           oldPlace.location
         );
-        return this.http.put(`https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/offered-places/${placeId}.json`,
+        return this.http.put(`https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/offered-places/${placeId}.json?auth=${fetchedToken}`,
           { ...updatedPlaces[updatedPlaceIndex], id:null }
         );
       }),

@@ -78,9 +78,10 @@ export class PlacesService {
     return this.authServcie.token.pipe( 
         take(1),
         switchMap(token=>{ 
-        return this.http.post<{imageUrl:string, imagePth:string}>('https://us-central1-ionic-angular-course-2646a.cloudfunctions.net/storeImage',
-         uploadData,
-        { headers: { Authorization:'Bearer' + token } });
+          return this.http.post<{imageUrl:string, imagePth:string}>('https://us-central1-ionic-angular-course-2646a.cloudfunctions.net/storeImage',
+          uploadData,
+          { headers: { Authorization:'Bearer' + token } }
+        );
       }))
    
   }

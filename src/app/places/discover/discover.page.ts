@@ -49,7 +49,7 @@ export class DiscoverPage implements OnInit, OnDestroy {
       });
   }
 
-  onFilterUpdate(event:CustomEvent<SegmentChangeEventDetail>){
+  onFilterUpdate(event/*:CustomEvent<SegmentChangeEventDetail>*/){
     console.log(event.detail);
 
     this.authService.userId.pipe(take(1)).subscribe(userId=>{

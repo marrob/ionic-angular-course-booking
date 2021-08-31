@@ -44,16 +44,22 @@ export class BookingService {
     dateTo:Date){
       let generatedId:string;
       let newBooking :Booking;
+      let fetchUserId: string;
       return this.autService.userId.pipe(
         take(1), 
         switchMap(userId=>{
         if(!userId){
           throw new Error('No User Id Found');
         }
+        fetchUserId = userId;
+        return this.autService.token;
+        }),
+        take(1),
+        switchMap(token=>{
           newBooking = new Booking(
             Math.random().toString(),
             placeId,
-            userId,
+            fetchUserId,
             placeTitle,
             placeImage,
             firstName,
@@ -63,7 +69,7 @@ export class BookingService {
             dateTo 
           );
           return this.http
-          .post<{name:string}>('https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/bookings.json', 
+          .post<{name:string}>(`https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/bookings.json?auth=${token}`, 
           {...newBooking, id:null}) //ez nullazza is az id küldését
         }),
         switchMap(resData=>{
@@ -79,8 +85,11 @@ export class BookingService {
 
   cancelBooking(bookingId:string){
 
-    return this.http.delete(`https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/bookings/${bookingId}.json`)
-    .pipe(
+    return this.autService.token.pipe(
+      take(1),
+      switchMap(token=>{
+            return this.http.delete(`https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/bookings/${bookingId}.json?auth=${token}`)
+      }),
       switchMap(()=>{
         return this.bookings;
       }),
@@ -91,14 +100,21 @@ export class BookingService {
   }
 
   fetchBookings(){
+    let fetchUserId: string;
     return this.autService.userId.pipe(
     take(1),
     switchMap(userId=>{    
       if(!userId)
+      {
         throw new Error('User Not Found');
-      return this.http.get<{[ key:string]:BookingData}>(`https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/bookings.json?orderBy="userId"&equalTo="${
-        userId
-      }"`);
+      }
+      fetchUserId = userId;
+      return this.autService.token;
+    }),
+    take(1),
+      switchMap(token=>{
+      return this.http.get<{[ key:string]:BookingData}>
+      (`https://ionic-angular-course-2646a-default-rtdb.europe-west1.firebasedatabase.app/bookings.json?orderBy="userId"&equalTo="${fetchUserId}"&auth=${token}`);
     }), 
     map(bookingData=>{
           const bookings=[];
